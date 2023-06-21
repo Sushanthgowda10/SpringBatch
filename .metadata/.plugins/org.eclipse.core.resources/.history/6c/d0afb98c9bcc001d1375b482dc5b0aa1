@@ -1,0 +1,66 @@
+package com.nt.config;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.nt.listener.JobMonitoringListener;
+import com.nt.processor.BookDetailProcessor;
+import com.nt.reader.BookDetailsReader;
+import com.nt.writter.BookDetailsWritter;
+
+@Configuration
+@EnableBatchProcessing
+public class BatchConfig {
+@Autowired
+private JobBuilderFactory jobfactory;
+
+@Autowired
+private StepBuilderFactory stepfactory;
+
+@Autowired
+private BookDetailsReader reader;
+
+@Autowired
+private BookDetailProcessor processor;
+
+@Autowired
+private BookDetailsWritter writter;
+
+@Autowired
+private JobMonitoringListener jobListenwer;
+
+
+//Create step object using stepBuilderFactory
+
+@Bean(name = "step1")
+public Step createStep1() {
+	System.out.println("BatchConfig.createStep1()");
+	return stepfactory.get("step1")
+			.<String,String>chunk(1)
+			.reader(reader)
+			.writter(writter)
+			.processor(processor)
+			.build();
+}
+// creayte job object using jobBuilderFactory
+
+@Bean(name= "job1")
+public Job CreateJob() {
+	System.out.println("BatchConfig.createJob()");
+	return jobfactory.get("jon1")
+			.incrementer(new RunIdIncrementer())
+			.listener(jobListenwer)
+			.start(createStep1())
+			.build();
+	
+}
+
+
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;SpringBatchJDBC2-POC-2&apos; to &apos;SpringBatchJDBC2-CSV-TO-MySQL&apos;" description="Rename resource &apos;SpringBatchJDBC2-POC-2&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/SpringBatchJDBC2-POC-2" name="SpringBatchJDBC2-CSV-TO-MySQL" stamp="1680082745082" updateReferences="true"/>
+</session>

@@ -1,0 +1,46 @@
+package com.nt.config;
+
+import javax.sql.DataSource;
+
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.nt.model.ExamResult;
+
+
+
+@Configuration
+@EnableBatchProcessing
+public class BatchConfig {
+	private JobBuilderFactory jobBuilderFactory;
+	
+	@Autowired
+	private JobBuilderFactory jobfactory;
+	
+	@Autowired
+	private StepBuilderFactory stepfactory;
+	
+	@Autowired
+	private EmployeeInfoItemProcessor processor;
+	@Autowired
+	private JobMonitoringListener listener;
+	
+	@Autowired
+	private DataSource ds;
+	
+	@Bean
+	public JdbcCursorItemReader<ExamResult> createReader() {
+		.dataSource(ds)
+		.sql(" select oid,dob,percentage,semester from exam_result")
+		.beanRowMapper(ExamResult.class)
+		.build();
+	}
+	
+	}
+
+}

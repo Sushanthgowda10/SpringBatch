@@ -1,0 +1,158 @@
+package com.nt.config;
+
+import javax.sql.DataSource;
+
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+
+import com.nt.listener.JobMonitoringListener;
+import com.nt.model.Employee;
+import com.nt.processor.EmployeeInfoItemProcessor;
+
+@Configuration
+@EnableBatchProcessing
+public class Batchconfig {
+
+	@Autowired
+	private JobBuilderFactory jobfactory;
+
+	@Autowired
+	private StepBuilderFactory stepfactory;
+
+	@Autowired
+	private EmployeeInfoItemProcessor processor;
+	@Autowired
+	private JobMonitoringListener listener;
+
+	@Autowired
+	private DataSource ds;
+
+	@Bean(name="ffiReader")
+	public FlatFileItemReader<Employee>createFFIReader() {
+		return new FlatFileItemReaderBuilder<Employee>().name("file-reader")
+				.resource(new ClassPathResource("Employee_Info_.csv")).delimited()
+				.names("eno","ename","eadd","salary","gender").targetType(Employee.class).build();
+	}
+
+	@Bean(name="jbiw")
+	public JdbcBatchItemWriter<Employee> createJBIWrier(){
+		JdbcBatchItemWriter<Employee> writer = new JdbcBatchItemWriter<Employee>() {
+			{
+				setDataSource(ds);
+				setSql("INSERT INTO employeeinfo VALUES(:eno,:ename,:eadd,:salary,:gender,:grosssalary,:netsalary)");
+				setItemSqlParameterSourceProvider( new BeanPropertyItemSqlParameterSourceProvider<Employee>());
+				
+				}
+			};
+		
+	return writer;
+}
+
+//	@Bean(name="ffiReader")
+//	public FlatFileItemReader<Employee> createFFIReader() {
+//		//create reader object
+//		FlatFileItemReader<Employee> reader = new FlatFileItemReader<Employee>();
+//		
+//		//Set csv file as resource
+//		reader.setResource(new ClassPathResource("EmployeeInfo.csv"));
+//		
+//		//create Linemapprer object(to get each line from csv file)
+//		
+//		//DefaultLineMapper<Employee> lineMapper = new DefaultLineMapper<Employee>();
+//		reader.setLineMapper(new DefaultLineMapper<Employee>() {
+//			{
+//				setLineTokenizer(new DelimitedLineTokenizer() {
+//					{
+//						setDelimiter(",");
+//					setNames("empno","ename","eadd","salary","gender");
+//					}
+//			});
+//				setFieldSetMapper(new BeanWrapperFieldSetMapper<Employee>() {
+//					{
+//						setTargetType(Employee.class);
+//					}
+//				});
+//			}
+//			});
+//		return reader;
+//	}
+
+// Create LineTokenizer (to get token from lines)
+
+// DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+// tokenizer.setDelimiter(",");
+// tokenizer.setNames("empno","ename","eadd","salary","gender");
+
+// create Feildsetmapper(To set tokens to model class object properties)
+//		
+//		BeanWrapperFieldSetMapper<Employee> feildSetMapper = new BeanWrapperFieldSetMapper<Employee>();
+//		feildSetMapper.setTargetType(Employee.class);
+//		
+//		//set Tokenizer, feildsetmapper objects to LineMapper
+//		lineMapper.setFieldSetMapper(feildSetMapper);
+//		lineMapper.setLineTokenizer(tokenizer);
+//		
+//		
+//		//set LineMapper to Reader Object
+//		reader.setLineMapper(lineMapper);
+//		return reader;
+//		
+//	}
+// @Bean(name="jbiw")
+
+// Create jdvcBatchItemWritter object
+
+// JdbcBatchItemWriter<Employee> writer = new JdbcBatchItemWriter<Employee>();
+// set datasource
+// writer.setDataSource(ds);
+
+// Set insert SQL Query with na,med parameter
+// writer.setSql("INSERT INTO employeeinfo
+// VALUES(:eno,:ename,:eadd,:salary,:gender,:grosssalary,:netsalary)");
+
+// Create BeanPropertyItemsqlparametersource provider object
+
+// BeanPropertyItemSqlParameterSourceProvider<Employee> sourceProvider = new
+// BeanPropertyItemSqlParameterSourceProvider<Employee>();
+
+// set source provider object to writer
+// writer.setItemSqlParameterSourceProvider(sourceProvider);
+// return writer;
+
+// }
+
+//	
+//	@Bean(name ="step1")
+//	public Step CreateStep1() {
+//		return stepfactory.get("step1")
+//				.<Employee,Employee>chunk(5)
+//				.reader(createFFIReader())
+//				.processor(processor)
+//				.writer(createJBIWrier())
+//				.build();
+//	}
+//
+//	@Bean(name ="job1")
+//	public Job CreateJob1() {
+//		return jobfactory.get("job1")
+//				.listener(listener)
+//			     .incrementer(new RunIdIncrementer())
+//			     .start(CreateStep1())
+//				.build();
+//	}
+//}

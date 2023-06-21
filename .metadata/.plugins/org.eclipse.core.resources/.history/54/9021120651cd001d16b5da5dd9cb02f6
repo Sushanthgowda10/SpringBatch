@@ -1,0 +1,7 @@
+package com.nt.processor;
+
+import org.springframework.batch.item.database.ItemPreparedStatementSetter;
+
+public class ExamResultItemProcessor implements ItemPreparedStatementSetter<T> {
+
+}

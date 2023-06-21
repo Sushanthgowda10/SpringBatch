@@ -1,0 +1,29 @@
+package com.nt.config;
+
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+
+import com.nt.listener.JobMonitoringListener;
+import com.nt.processor.EmployeeInfoItemProcessor;
+
+@Configuration
+@EnableBatchProcessing
+public class BatchConfig {
+	private JobBuilderFactory jobBuilderFactory;
+	
+	@Autowired
+	private JobBuilderFactory jobfactory;
+	
+	@Autowired
+	private StepBuilderFactory stepfactory;
+	
+	@Autowired
+	private EmployeeInfoItemProcessor processor;
+	@Autowired
+	private JobMonitoringListener listener;
+	
+
+}
